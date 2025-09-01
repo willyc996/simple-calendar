@@ -85,21 +85,68 @@ class Calendar {
         const title = issue.title.replace('[事件] ', '');
         const description = issue.body || '';
         
-        // 嘗試從內容中解析日期
+        // 嘗試從內容中解析日期 - 支援多種格式
         let date = new Date();
-        const dateMatch = description.match(/事件日期：\s*(\d{4}-\d{2}-\d{2})/);
+        let dateFound = false;
+        
+        // 格式 1: 事件日期：2024-09-15
+        let dateMatch = description.match(/事件日期：\s*(\d{4}-\d{2}-\d{2})/);
         if (dateMatch) {
             date = new Date(dateMatch[1]);
+            dateFound = true;
+            console.log(`從 "事件日期：" 找到日期: ${dateMatch[1]}`);
         }
+        
+        // 格式 2: 日期：2024-09-15
+        if (!dateFound) {
+            dateMatch = description.match(/日期：\s*(\d{4}-\d{2}-\d{2})/);
+            if (dateMatch) {
+                date = new Date(dateMatch[1]);
+                dateFound = true;
+                console.log(`從 "日期：" 找到日期: ${dateMatch[1]}`);
+            }
+        }
+        
+        // 格式 3: 2024-09-15 (直接搜尋日期格式)
+        if (!dateFound) {
+            dateMatch = description.match(/(\d{4}-\d{2}-\d{2})/);
+            if (dateMatch) {
+                date = new Date(dateMatch[1]);
+                dateFound = true;
+                console.log(`直接找到日期格式: ${dateMatch[1]}`);
+            }
+        }
+        
+        // 格式 4: 2024年9月15日
+        if (!dateFound) {
+            dateMatch = description.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+            if (dateMatch) {
+                const year = parseInt(dateMatch[1]);
+                const month = parseInt(dateMatch[2]) - 1; // JavaScript 月份從 0 開始
+                const day = parseInt(dateMatch[3]);
+                date = new Date(year, month, day);
+                dateFound = true;
+                console.log(`從中文格式找到日期: ${year}年${month + 1}月${day}日`);
+            }
+        }
+        
+        if (!dateFound) {
+            console.log('無法找到日期，使用當前日期');
+            date = new Date();
+        }
+        
+        const formattedDate = this.formatDate(date);
+        console.log(`解析後的日期: ${formattedDate}, 原始日期: ${date}`);
         
         return {
             id: issue.id,
             title: title,
             description: description,
-            date: this.formatDate(date),
+            date: formattedDate,
             issueUrl: issue.html_url,
             createdAt: issue.created_at,
-            labels: issue.labels.map(label => label.name)
+            labels: issue.labels.map(label => label.name),
+            originalDate: date // 保存原始日期用於除錯
         };
     }
 
@@ -139,8 +186,12 @@ class Calendar {
             
             // 檢查是否有事件
             const dateString = this.formatDate(date);
-            if (this.events.some(event => event.date === dateString)) {
+            const eventsOnThisDate = this.events.filter(event => event.date === dateString);
+            if (eventsOnThisDate.length > 0) {
                 dayElement.classList.add('has-events');
+                // 添加事件數量提示
+                dayElement.title = `${dateString}: ${eventsOnThisDate.length} 個事件`;
+                console.log(`日期 ${dateString} 有 ${eventsOnThisDate.length} 個事件:`, eventsOnThisDate);
             }
             
             // 點擊日期顯示事件
