@@ -8,11 +8,13 @@ class Calendar {
     }
 
     init() {
+        console.log('開始初始化行事曆...');
         this.renderCalendar();
         this.bindEvents();
         this.addRefreshButton(); // 立即添加按鈕
         this.loadEventsFromGitHub();
         this.setCurrentDate();
+        console.log('行事曆初始化完成');
     }
 
     async loadEventsFromGitHub() {
@@ -41,12 +43,10 @@ class Calendar {
             const issues = await response.json();
             console.log('收到的 Issues:', issues);
             
-            // 過濾出有 event 標籤的 Issues
-            const eventIssues = issues.filter(issue => 
-                issue.labels && issue.labels.some(label => label.name === 'event')
-            );
+            // 載入所有 Issues，不限制標籤（暫時移除標籤過濾）
+            const eventIssues = issues;
             
-            console.log('有 event 標籤的 Issues:', eventIssues);
+            console.log('所有 Issues:', eventIssues);
             
             this.events = eventIssues.map(issue => this.parseIssueToEvent(issue));
             console.log('解析後的事件:', this.events);
@@ -230,10 +230,13 @@ class Calendar {
     }
 
     addRefreshButton() {
+        console.log('開始添加按鈕...');
         const header = document.querySelector('header');
+        console.log('找到 header 元素:', header);
         
         // 檢查是否已經有按鈕
         if (header.querySelector('.refresh-button')) {
+            console.log('按鈕已存在，跳過添加');
             return;
         }
         
@@ -241,6 +244,7 @@ class Calendar {
         const todayButton = document.createElement('button');
         todayButton.innerHTML = '📅 回到今天';
         todayButton.className = 'today-button';
+        todayButton.style.cssText = 'position: absolute; top: 20px; right: 140px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 1em; z-index: 1001;';
         todayButton.addEventListener('click', () => {
             console.log('回到今天按鈕被點擊');
             this.currentDate = new Date();
@@ -252,6 +256,7 @@ class Calendar {
         const refreshButton = document.createElement('button');
         refreshButton.innerHTML = '🔄 重新整理';
         refreshButton.className = 'refresh-button';
+        refreshButton.style.cssText = 'position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 1em; z-index: 1001;';
         refreshButton.addEventListener('click', () => {
             console.log('重新整理按鈕被點擊');
             this.showMessage('正在重新整理事件...', 'info');
@@ -262,10 +267,9 @@ class Calendar {
         header.appendChild(todayButton);
         header.appendChild(refreshButton);
         
-        // 強制顯示按鈕
-        todayButton.style.display = 'block';
-        refreshButton.style.display = 'block';
-        
+        console.log('按鈕已添加到 DOM');
+        console.log('回到今天按鈕:', todayButton);
+        console.log('重新整理按鈕:', refreshButton);
         console.log('按鈕已添加並強制顯示');
     }
 
