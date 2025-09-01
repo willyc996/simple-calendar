@@ -81,6 +81,9 @@ class Calendar {
     }
 
     parseIssueToEvent(issue) {
+        console.log('開始解析 Issue:', issue.title);
+        console.log('Issue 內容:', issue.body);
+        
         // 從 Issue 標題和內容解析事件資訊
         const title = issue.title.replace('[事件] ', '');
         const description = issue.body || '';
@@ -88,13 +91,15 @@ class Calendar {
         // 嘗試從內容中解析日期 - 支援多種格式
         let date = new Date();
         let dateFound = false;
+        let dateSource = '未找到日期，使用當前日期';
         
         // 格式 1: 事件日期：2024-09-15
         let dateMatch = description.match(/事件日期：\s*(\d{4}-\d{2}-\d{2})/);
         if (dateMatch) {
             date = new Date(dateMatch[1]);
             dateFound = true;
-            console.log(`從 "事件日期：" 找到日期: ${dateMatch[1]}`);
+            dateSource = `從 "事件日期：" 找到日期: ${dateMatch[1]}`;
+            console.log(dateSource);
         }
         
         // 格式 2: 日期：2024-09-15
@@ -103,7 +108,8 @@ class Calendar {
             if (dateMatch) {
                 date = new Date(dateMatch[1]);
                 dateFound = true;
-                console.log(`從 "日期：" 找到日期: ${dateMatch[1]}`);
+                dateSource = `從 "日期：" 找到日期: ${dateMatch[1]}`;
+                console.log(dateSource);
             }
         }
         
@@ -113,7 +119,8 @@ class Calendar {
             if (dateMatch) {
                 date = new Date(dateMatch[1]);
                 dateFound = true;
-                console.log(`直接找到日期格式: ${dateMatch[1]}`);
+                dateSource = `直接找到日期格式: ${dateMatch[1]}`;
+                console.log(dateSource);
             }
         }
         
@@ -126,7 +133,36 @@ class Calendar {
                 const day = parseInt(dateMatch[3]);
                 date = new Date(year, month, day);
                 dateFound = true;
-                console.log(`從中文格式找到日期: ${year}年${month + 1}月${day}日`);
+                dateSource = `從中文格式找到日期: ${year}年${month + 1}月${day}日`;
+                console.log(dateSource);
+            }
+        }
+        
+        // 格式 5: 2024/09/15
+        if (!dateFound) {
+            dateMatch = description.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+            if (dateMatch) {
+                const year = parseInt(dateMatch[1]);
+                const month = parseInt(dateMatch[2]) - 1;
+                const day = parseInt(dateMatch[3]);
+                date = new Date(year, month, day);
+                dateFound = true;
+                dateSource = `從斜線格式找到日期: ${year}/${month + 1}/${day}`;
+                console.log(dateSource);
+            }
+        }
+        
+        // 格式 6: 2024.09.15
+        if (!dateFound) {
+            dateMatch = description.match(/(\d{4})\.(\d{1,2})\.(\d{1,2})/);
+            if (dateMatch) {
+                const year = parseInt(dateMatch[1]);
+                const month = parseInt(dateMatch[2]) - 1;
+                const day = parseInt(dateMatch[3]);
+                date = new Date(year, month, day);
+                dateFound = true;
+                dateSource = `從點號格式找到日期: ${year}.${month + 1}.${day}`;
+                console.log(dateSource);
             }
         }
         
@@ -136,7 +172,11 @@ class Calendar {
         }
         
         const formattedDate = this.formatDate(date);
-        console.log(`解析後的日期: ${formattedDate}, 原始日期: ${date}`);
+        console.log(`Issue "${issue.title}" 解析結果:`);
+        console.log(`- 日期來源: ${dateSource}`);
+        console.log(`- 解析後的日期: ${formattedDate}`);
+        console.log(`- 原始日期物件: ${date}`);
+        console.log(`- 年份: ${date.getFullYear()}, 月份: ${date.getMonth() + 1}, 日期: ${date.getDate()}`);
         
         return {
             id: issue.id,
@@ -146,7 +186,8 @@ class Calendar {
             issueUrl: issue.html_url,
             createdAt: issue.created_at,
             labels: issue.labels.map(label => label.name),
-            originalDate: date // 保存原始日期用於除錯
+            originalDate: date, // 保存原始日期用於除錯
+            dateSource: dateSource // 保存日期來源用於除錯
         };
     }
 
@@ -299,7 +340,8 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
             if (event.description) {
                 message += `   描述：${event.description.substring(0, 100)}...\n`;
             }
-            message += `   連結：${event.issueUrl}\n\n`;
+            message += `   連結：${event.issueUrl}\n`;
+            message += `   日期來源：${event.dateSource}\n\n`;
         });
         
         this.showMessage(message, 'info');
@@ -323,6 +365,7 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
                 <h4>${event.title}</h4>
                 ${event.description ? `<p>${event.description.substring(0, 100)}...</p>` : ''}
                 <div class="event-date">${event.date}</div>
+                <div class="event-source">${event.dateSource}</div>
                 <a href="${event.issueUrl}" target="_blank" class="view-issue-btn">在 GitHub 查看</a>
             `;
             todayEventsDiv.appendChild(eventElement);
