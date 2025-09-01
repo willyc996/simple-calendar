@@ -19,11 +19,18 @@ class Calendar {
             console.log('開始載入事件...');
             this.showMessage('正在載入事件...', 'info');
             
-            // 從 GitHub API 讀取 Issues
-            const apiUrl = `https://api.github.com/repos/${this.githubUsername}/${this.repositoryName}/issues?labels=event&state=open`;
+            // 使用 GitHub 的公開 API，不限制標籤
+            const apiUrl = `https://api.github.com/repos/${this.githubUsername}/${this.repositoryName}/issues?state=open`;
             console.log('API URL:', apiUrl);
             
-            const response = await fetch(apiUrl);
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'Simple-Calendar-App'
+                }
+            });
+            
             console.log('API 回應狀態:', response.status);
             
             if (!response.ok) {
@@ -33,7 +40,14 @@ class Calendar {
             const issues = await response.json();
             console.log('收到的 Issues:', issues);
             
-            this.events = issues.map(issue => this.parseIssueToEvent(issue));
+            // 過濾出有 event 標籤的 Issues
+            const eventIssues = issues.filter(issue => 
+                issue.labels && issue.labels.some(label => label.name === 'event')
+            );
+            
+            console.log('有 event 標籤的 Issues:', eventIssues);
+            
+            this.events = eventIssues.map(issue => this.parseIssueToEvent(issue));
             console.log('解析後的事件:', this.events);
             
             this.renderCalendar();
@@ -45,12 +59,24 @@ class Calendar {
             
             // 如果沒有事件，顯示提示
             if (this.events.length === 0) {
-                this.showMessage('目前沒有事件。您可以新增第一個事件！', 'info');
+                if (issues.length > 0) {
+                    this.showMessage(`找到 ${issues.length} 個 Issues，但沒有 event 標籤。請為事件添加 "event" 標籤。`, 'warning');
+                } else {
+                    this.showMessage('目前沒有事件。您可以新增第一個事件！', 'info');
+                }
             }
             
         } catch (error) {
             console.error('載入事件失敗:', error);
             this.showMessage(`載入事件失敗: ${error.message}`, 'error');
+            
+            // 顯示手動新增事件的說明
+            this.showMessage(`
+無法自動載入事件，但您可以：
+1. 直接在 GitHub 上新增事件
+2. 前往：https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?template=event.md
+3. 填寫事件資訊並提交
+            `, 'warning');
         }
     }
 
