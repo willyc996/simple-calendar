@@ -162,8 +162,13 @@ class Calendar {
         
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
+        
+        // 調整為週一開始的日曆（週一 = 1, 週日 = 0）
+        let firstDayOfWeek = firstDay.getDay();
+        if (firstDayOfWeek === 0) firstDayOfWeek = 7; // 週日改為 7
+        
         const startDate = new Date(firstDay);
-        startDate.setDate(startDate.getDate() - firstDay.getDay());
+        startDate.setDate(startDate.getDate() - (firstDayOfWeek - 1)); // 從週一開始
         
         for (let i = 0; i < 42; i++) {
             const date = new Date(startDate);
