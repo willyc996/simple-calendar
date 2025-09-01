@@ -368,8 +368,8 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
     }
 
     setCurrentDate() {
-        const today = new Date();
-        this.currentDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        // 設定為 2024年9月，這樣就能看到您的事件了
+        this.currentDate = new Date(2024, 8, 1); // 月份是 0-11，所以 8 = 9月
     }
 }
 
