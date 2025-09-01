@@ -207,6 +207,7 @@ header h1 {
     padding: 20px;
     border-radius: 10px;
     border: 1px solid #e9ecef;
+    margin-bottom: 20px;
 }
 
 .event-item {
@@ -298,19 +299,47 @@ header h1 {
     background: #e3f2fd;
     border: 1px solid #2196f3;
     border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
 }
 
 .event-instructions h4 {
     color: #1976d2;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
 }
 
 .event-instructions p {
     color: #424242;
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.event-instructions ol {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.event-instructions li {
+    color: #424242;
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.event-instructions code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
     font-size: 0.9em;
-    line-height: 1.5;
+    color: #d63384;
+}
+
+.event-instructions strong {
+    color: #1976d2;
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {
@@ -344,5 +373,14 @@ header h1 {
         right: 10px;
         left: 10px;
         max-width: none;
+    }
+    
+    .event-instructions {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .event-instructions ol {
+        margin-left: 15px;
     }
 }
