@@ -51,8 +51,9 @@ class Calendar {
             this.events = eventIssues.map(issue => this.parseIssueToEvent(issue));
             console.log('解析後的事件:', this.events);
             
-            this.renderCalendar();
+            // 只更新事件顯示，不重新渲染整個日曆（避免覆蓋按鈕）
             this.updateTodayEvents();
+            this.highlightEventDates(); // 高亮有事件的日期
             
             const message = `成功載入 ${this.events.length} 個事件`;
             console.log(message);
@@ -339,6 +340,29 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
                 <a href="${event.issueUrl}" target="_blank" class="view-issue-btn">在 GitHub 查看</a>
             `;
             todayEventsDiv.appendChild(eventElement);
+        });
+    }
+
+    highlightEventDates() {
+        // 為有事件的日期添加紅色小點
+        const calendarDays = document.querySelectorAll('.calendar-day');
+        calendarDays.forEach(dayElement => {
+            const dayNumber = dayElement.textContent;
+            const month = this.currentDate.getMonth();
+            const year = this.currentDate.getFullYear();
+            
+            // 找到對應的日期
+            const date = new Date(year, month, parseInt(dayNumber));
+            const dateString = this.formatDate(date);
+            
+            // 檢查是否有事件
+            const hasEvents = this.events.some(event => event.date === dateString);
+            
+            if (hasEvents) {
+                dayElement.classList.add('has-events');
+            } else {
+                dayElement.classList.remove('has-events');
+            }
         });
     }
 

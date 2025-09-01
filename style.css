@@ -115,6 +115,13 @@ header h1 {
     border-radius: 10px;
 }
 
+/* 週末（週六、週日）顯示為紅色 */
+.weekdays div:nth-child(6),
+.weekdays div:nth-child(7) {
+    color: #e74c3c;
+    background: #fdf2f2;
+}
+
 .calendar-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -130,6 +137,18 @@ header h1 {
     transition: all 0.3s ease;
     position: relative;
     background: white;
+}
+
+/* 週末的日期顯示為紅色 */
+.calendar-day:nth-child(7n+6),
+.calendar-day:nth-child(7n) {
+    color: #e74c3c;
+    background: #fdf2f2;
+}
+
+.calendar-day:nth-child(7n+6):hover,
+.calendar-day:nth-child(7n):hover {
+    background: #fce4e4;
 }
 
 .calendar-day:hover {
