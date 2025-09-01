@@ -16,18 +16,41 @@ class Calendar {
 
     async loadEventsFromGitHub() {
         try {
+            console.log('開始載入事件...');
+            this.showMessage('正在載入事件...', 'info');
+            
             // 從 GitHub API 讀取 Issues
-            const response = await fetch(`https://api.github.com/repos/${this.githubUsername}/${this.repositoryName}/issues?labels=event&state=open`);
+            const apiUrl = `https://api.github.com/repos/${this.githubUsername}/${this.repositoryName}/issues?labels=event&state=open`;
+            console.log('API URL:', apiUrl);
+            
+            const response = await fetch(apiUrl);
+            console.log('API 回應狀態:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const issues = await response.json();
+            console.log('收到的 Issues:', issues);
             
             this.events = issues.map(issue => this.parseIssueToEvent(issue));
+            console.log('解析後的事件:', this.events);
+            
             this.renderCalendar();
             this.updateTodayEvents();
             
-            console.log(`成功載入 ${this.events.length} 個事件`);
+            const message = `成功載入 ${this.events.length} 個事件`;
+            console.log(message);
+            this.showMessage(message, 'success');
+            
+            // 如果沒有事件，顯示提示
+            if (this.events.length === 0) {
+                this.showMessage('目前沒有事件。您可以新增第一個事件！', 'info');
+            }
+            
         } catch (error) {
             console.error('載入事件失敗:', error);
-            this.showMessage('載入事件失敗，請檢查網路連線', 'error');
+            this.showMessage(`載入事件失敗: ${error.message}`, 'error');
         }
     }
 
@@ -130,15 +153,23 @@ class Calendar {
 
     addRefreshButton() {
         const header = document.querySelector('header');
+        
+        // 檢查是否已經有重新整理按鈕
+        if (header.querySelector('.refresh-button')) {
+            return;
+        }
+        
         const refreshButton = document.createElement('button');
         refreshButton.innerHTML = '🔄 重新整理';
         refreshButton.className = 'refresh-button';
         refreshButton.addEventListener('click', () => {
-            this.loadEventsFromGitHub();
+            console.log('重新整理按鈕被點擊');
             this.showMessage('正在重新整理事件...', 'info');
+            this.loadEventsFromGitHub();
         });
         
         header.appendChild(refreshButton);
+        console.log('重新整理按鈕已添加');
     }
 
     addEvent() {
@@ -222,14 +253,19 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
     }
 
     showMessage(message, type = 'info') {
+        // 移除舊的訊息
+        const oldMessages = document.querySelectorAll('.message');
+        oldMessages.forEach(msg => msg.remove());
+        
         // 建立訊息顯示元素
         const messageDiv = document.createElement('div');
         messageDiv.className = `message message-${type}`;
-        messageDiv.textContent = message;
         
         // 如果是長訊息，支援換行
         if (message.includes('\n')) {
             messageDiv.innerHTML = message.replace(/\n/g, '<br>');
+        } else {
+            messageDiv.textContent = message;
         }
         
         // 添加到頁面
@@ -237,8 +273,12 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
         
         // 自動移除
         setTimeout(() => {
-            messageDiv.remove();
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
         }, 10000);
+        
+        console.log(`顯示訊息 [${type}]:`, message);
     }
 
     formatDate(date) {
@@ -262,9 +302,11 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
 }
 
 // 初始化行事曆
+console.log('開始初始化行事曆...');
 const calendar = new Calendar();
 
 // 頁面載入完成後更新今日事件
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('頁面載入完成');
     calendar.updateTodayEvents();
 });
