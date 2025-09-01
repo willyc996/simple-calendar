@@ -237,16 +237,6 @@ class Calendar {
             return;
         }
         
-        // 建立重新整理按鈕
-        const refreshButton = document.createElement('button');
-        refreshButton.innerHTML = '🔄 重新整理';
-        refreshButton.className = 'refresh-button';
-        refreshButton.addEventListener('click', () => {
-            console.log('重新整理按鈕被點擊');
-            this.showMessage('正在重新整理事件...', 'info');
-            this.loadEventsFromGitHub();
-        });
-        
         // 建立回到今天按鈕
         const todayButton = document.createElement('button');
         todayButton.innerHTML = '📅 回到今天';
@@ -258,9 +248,25 @@ class Calendar {
             this.showMessage('已回到今天', 'success');
         });
         
+        // 建立重新整理按鈕
+        const refreshButton = document.createElement('button');
+        refreshButton.innerHTML = '🔄 重新整理';
+        refreshButton.className = 'refresh-button';
+        refreshButton.addEventListener('click', () => {
+            console.log('重新整理按鈕被點擊');
+            this.showMessage('正在重新整理事件...', 'info');
+            this.loadEventsFromGitHub();
+        });
+        
+        // 添加按鈕到頁面
         header.appendChild(todayButton);
         header.appendChild(refreshButton);
-        console.log('按鈕已添加');
+        
+        // 強制顯示按鈕
+        todayButton.style.display = 'block';
+        refreshButton.style.display = 'block';
+        
+        console.log('按鈕已添加並強制顯示');
     }
 
     addEvent() {
@@ -410,8 +416,9 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
     }
 
     setCurrentDate() {
-        // 設定為 2024年9月，這樣就能看到您的事件了
-        this.currentDate = new Date(2024, 8, 1); // 月份是 0-11，所以 8 = 9月
+        // 設定為當前年份的9月
+        const currentYear = new Date().getFullYear();
+        this.currentDate = new Date(currentYear, 8, 1); // 月份是 0-11，所以 8 = 9月
     }
 }
 
