@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>簡單行事曆</title>
+    <title>家庭共享行事曆</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>我的行事曆</h1>
+            <h1>家庭共享行事曆</h1>
             <div class="calendar-controls">
                 <button id="prevMonth">&lt;</button>
                 <span id="currentMonth">2024年1月</span>
@@ -31,6 +31,11 @@
         </div>
         
         <div class="event-panel">
+            <div class="event-instructions">
+                <h4>🌟 家庭共享功能說明</h4>
+                <p>這是一個多人共享的行事曆！您新增的事件會自動同步到所有家人的瀏覽器中。家人只需要點擊右上角的「🔄 重新整理」按鈕，就能看到最新的事件。</p>
+            </div>
+            
             <h3>新增事件</h3>
             <div class="event-form">
                 <input type="date" id="eventDate" required>
@@ -42,6 +47,17 @@
             <div class="events-list">
                 <h3>今日事件</h3>
                 <div id="todayEvents"></div>
+            </div>
+            
+            <div class="event-instructions">
+                <h4>📱 家人使用說明</h4>
+                <p><strong>家人只需要：</strong></p>
+                <ol>
+                    <li>開啟這個網址：<code>https://willyc996.github.io/simple-calendar/</code></li>
+                    <li>點擊右上角的「🔄 重新整理」按鈕</li>
+                    <li>就能看到您新增的所有事件了！</li>
+                </ol>
+                <p><strong>注意：</strong>事件會自動從 GitHub 同步，無需登入任何帳號。</p>
             </div>
         </div>
     </div>

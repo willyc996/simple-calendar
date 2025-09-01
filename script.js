@@ -1,30 +1,72 @@
 class Calendar {
     constructor() {
         this.currentDate = new Date();
-        this.events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
+        this.events = [];
+        this.githubUsername = 'willyc996';
+        this.repositoryName = 'simple-calendar';
         this.init();
     }
 
     init() {
         this.renderCalendar();
         this.bindEvents();
-        this.updateTodayEvents();
+        this.loadEventsFromGitHub();
         this.setCurrentDate();
+    }
+
+    async loadEventsFromGitHub() {
+        try {
+            // 從 GitHub API 讀取 Issues
+            const response = await fetch(`https://api.github.com/repos/${this.githubUsername}/${this.repositoryName}/issues?labels=event&state=open`);
+            const issues = await response.json();
+            
+            this.events = issues.map(issue => this.parseIssueToEvent(issue));
+            this.renderCalendar();
+            this.updateTodayEvents();
+            
+            console.log(`成功載入 ${this.events.length} 個事件`);
+        } catch (error) {
+            console.error('載入事件失敗:', error);
+            this.showMessage('載入事件失敗，請檢查網路連線', 'error');
+        }
+    }
+
+    parseIssueToEvent(issue) {
+        // 從 Issue 標題和內容解析事件資訊
+        const title = issue.title.replace('[事件] ', '');
+        const description = issue.body || '';
+        
+        // 嘗試從內容中解析日期
+        let date = new Date();
+        const dateMatch = description.match(/事件日期：\s*(\d{4}-\d{2}-\d{2})/);
+        if (dateMatch) {
+            date = new Date(dateMatch[1]);
+        }
+        
+        return {
+            id: issue.id,
+            title: title,
+            description: description,
+            date: this.formatDate(date),
+            issueUrl: issue.html_url,
+            createdAt: issue.created_at,
+            labels: issue.labels.map(label => label.name)
+        };
     }
 
     renderCalendar() {
         const year = this.currentDate.getFullYear();
-        const month = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
         
         // 更新月份顯示
         document.getElementById('currentMonth').textContent = 
-            `${year}年${this.currentDate.getMonth() + 1}月`;
+            `${year}年${month + 1}月`;
         
         const calendarDays = document.getElementById('calendarDays');
         calendarDays.innerHTML = '';
         
-        const firstDay = new Date(year, this.currentDate.getMonth(), 1);
-        const lastDay = new Date(year, this.currentDate.getMonth() + 1, 0);
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
         const startDate = new Date(firstDay);
         startDate.setDate(startDate.getDate() - firstDay.getDay());
         
@@ -37,7 +79,7 @@ class Calendar {
             dayElement.textContent = date.getDate();
             
             // 檢查是否為其他月份的日期
-            if (date.getMonth() !== this.currentDate.getMonth()) {
+            if (date.getMonth() !== month) {
                 dayElement.classList.add('other-month');
             }
             
@@ -48,7 +90,7 @@ class Calendar {
             
             // 檢查是否有事件
             const dateString = this.formatDate(date);
-            if (this.events[dateString] && this.events[dateString].length > 0) {
+            if (this.events.some(event => event.date === dateString)) {
                 dayElement.classList.add('has-events');
             }
             
@@ -81,6 +123,22 @@ class Calendar {
         
         // 設定今天的日期
         document.getElementById('eventDate').value = this.formatDate(new Date());
+        
+        // 新增重新整理按鈕事件
+        this.addRefreshButton();
+    }
+
+    addRefreshButton() {
+        const header = document.querySelector('header');
+        const refreshButton = document.createElement('button');
+        refreshButton.innerHTML = '🔄 重新整理';
+        refreshButton.className = 'refresh-button';
+        refreshButton.addEventListener('click', () => {
+            this.loadEventsFromGitHub();
+            this.showMessage('正在重新整理事件...', 'info');
+        });
+        
+        header.appendChild(refreshButton);
     }
 
     addEvent() {
@@ -89,57 +147,59 @@ class Calendar {
         const description = document.getElementById('eventDescription').value.trim();
         
         if (!date || !title) {
-            alert('請填寫日期和事件標題！');
+            this.showMessage('請填寫日期和事件標題！', 'error');
             return;
         }
         
-        if (!this.events[date]) {
-            this.events[date] = [];
-        }
+        // 顯示如何新增事件的說明
+        const message = `
+新增事件成功！🎉
+
+您的家人現在可以：
+1. 開啟行事曆網址
+2. 點擊 "🔄 重新整理" 按鈕
+3. 就能看到您新增的事件了！
+
+或者，您也可以直接在 GitHub 上新增事件：
+https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?template=event.md
+        `;
         
-        const event = {
-            id: Date.now(),
-            title: title,
-            description: description,
-            date: date
-        };
-        
-        this.events[date].push(event);
-        this.saveEvents();
-        this.renderCalendar();
-        this.updateTodayEvents();
+        this.showMessage(message, 'success');
         
         // 清空表單
         document.getElementById('eventTitle').value = '';
         document.getElementById('eventDescription').value = '';
         
-        alert('事件新增成功！');
+        // 重新載入事件
+        setTimeout(() => {
+            this.loadEventsFromGitHub();
+        }, 2000);
     }
 
     showDateEvents(date) {
         const dateString = this.formatDate(date);
-        const events = this.events[dateString] || [];
+        const events = this.events.filter(event => event.date === dateString);
         
         if (events.length === 0) {
-            alert(`${dateString} 沒有事件`);
+            this.showMessage(`${dateString} 沒有事件`, 'info');
             return;
         }
         
         let message = `${dateString} 的事件：\n\n`;
         events.forEach((event, index) => {
-            message += `${index + 1}. ${event.title}`;
+            message += `${index + 1}. ${event.title}\n`;
             if (event.description) {
-                message += `\n   描述：${event.description}`;
+                message += `   描述：${event.description.substring(0, 100)}...\n`;
             }
-            message += '\n\n';
+            message += `   連結：${event.issueUrl}\n\n`;
         });
         
-        alert(message);
+        this.showMessage(message, 'info');
     }
 
     updateTodayEvents() {
         const today = this.formatDate(new Date());
-        const todayEvents = this.events[today] || [];
+        const todayEvents = this.events.filter(event => event.date === today);
         const todayEventsDiv = document.getElementById('todayEvents');
         
         if (todayEvents.length === 0) {
@@ -153,31 +213,32 @@ class Calendar {
             eventElement.className = 'event-item';
             eventElement.innerHTML = `
                 <h4>${event.title}</h4>
-                ${event.description ? `<p>${event.description}</p>` : ''}
+                ${event.description ? `<p>${event.description.substring(0, 100)}...</p>` : ''}
                 <div class="event-date">${event.date}</div>
-                <button onclick="calendar.deleteEvent('${event.date}', ${event.id})" 
-                        style="background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-                    刪除
-                </button>
+                <a href="${event.issueUrl}" target="_blank" class="view-issue-btn">在 GitHub 查看</a>
             `;
             todayEventsDiv.appendChild(eventElement);
         });
     }
 
-    deleteEvent(date, eventId) {
-        if (confirm('確定要刪除這個事件嗎？')) {
-            this.events[date] = this.events[date].filter(event => event.id !== eventId);
-            if (this.events[date].length === 0) {
-                delete this.events[date];
-            }
-            this.saveEvents();
-            this.renderCalendar();
-            this.updateTodayEvents();
+    showMessage(message, type = 'info') {
+        // 建立訊息顯示元素
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message message-${type}`;
+        messageDiv.textContent = message;
+        
+        // 如果是長訊息，支援換行
+        if (message.includes('\n')) {
+            messageDiv.innerHTML = message.replace(/\n/g, '<br>');
         }
-    }
-
-    saveEvents() {
-        localStorage.setItem('calendarEvents', JSON.stringify(this.events));
+        
+        // 添加到頁面
+        document.body.appendChild(messageDiv);
+        
+        // 自動移除
+        setTimeout(() => {
+            messageDiv.remove();
+        }, 10000);
     }
 
     formatDate(date) {
