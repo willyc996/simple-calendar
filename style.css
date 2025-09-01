@@ -1,0 +1,236 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.calendar-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.calendar-controls button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-controls button:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.1);
+}
+
+#currentMonth {
+    font-size: 1.3em;
+    font-weight: bold;
+    min-width: 150px;
+}
+
+.calendar {
+    padding: 30px;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.weekdays div {
+    text-align: center;
+    font-weight: bold;
+    color: #666;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: white;
+}
+
+.calendar-day:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.calendar-day.other-month {
+    color: #ccc;
+    background: #f8f9fa;
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.has-events::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    background: #ff6b6b;
+    border-radius: 50%;
+}
+
+.event-panel {
+    background: #f8f9fa;
+    padding: 30px;
+    border-top: 1px solid #e9ecef;
+}
+
+.event-panel h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+}
+
+.event-form {
+    display: grid;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.event-form input,
+.event-form textarea {
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+.event-form input:focus,
+.event-form textarea:focus {
+    outline: none;
+    border-color: #4facfe;
+}
+
+.event-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#addEvent {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#addEvent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.events-list {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.event-item {
+    background: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #4facfe;
+}
+
+.event-item h4 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.event-item p {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.event-item .event-date {
+    color: #999;
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 10px;
+    }
+    
+    header {
+        padding: 20px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .calendar {
+        padding: 20px;
+    }
+    
+    .event-panel {
+        padding: 20px;
+    }
+}

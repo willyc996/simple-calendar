@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡單行事曆</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>我的行事曆</h1>
+            <div class="calendar-controls">
+                <button id="prevMonth">&lt;</button>
+                <span id="currentMonth">2024年1月</span>
+                <button id="nextMonth">&gt;</button>
+            </div>
+        </header>
+        
+        <div class="calendar">
+            <div class="weekdays">
+                <div>日</div>
+                <div>一</div>
+                <div>二</div>
+                <div>三</div>
+                <div>四</div>
+                <div>五</div>
+                <div>六</div>
+            </div>
+            <div id="calendarDays" class="calendar-days"></div>
+        </div>
+        
+        <div class="event-panel">
+            <h3>新增事件</h3>
+            <div class="event-form">
+                <input type="date" id="eventDate" required>
+                <input type="text" id="eventTitle" placeholder="事件標題" required>
+                <textarea id="eventDescription" placeholder="事件描述（選填）"></textarea>
+                <button id="addEvent">新增事件</button>
+            </div>
+            
+            <div class="events-list">
+                <h3>今日事件</h3>
+                <div id="todayEvents"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
