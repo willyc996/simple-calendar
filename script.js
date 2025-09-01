@@ -226,11 +226,12 @@ class Calendar {
     addRefreshButton() {
         const header = document.querySelector('header');
         
-        // 檢查是否已經有重新整理按鈕
+        // 檢查是否已經有按鈕
         if (header.querySelector('.refresh-button')) {
             return;
         }
         
+        // 建立重新整理按鈕
         const refreshButton = document.createElement('button');
         refreshButton.innerHTML = '🔄 重新整理';
         refreshButton.className = 'refresh-button';
@@ -240,8 +241,20 @@ class Calendar {
             this.loadEventsFromGitHub();
         });
         
+        // 建立回到今天按鈕
+        const todayButton = document.createElement('button');
+        todayButton.innerHTML = '📅 回到今天';
+        todayButton.className = 'today-button';
+        todayButton.addEventListener('click', () => {
+            console.log('回到今天按鈕被點擊');
+            this.currentDate = new Date();
+            this.renderCalendar();
+            this.showMessage('已回到今天', 'success');
+        });
+        
+        header.appendChild(todayButton);
         header.appendChild(refreshButton);
-        console.log('重新整理按鈕已添加');
+        console.log('按鈕已添加');
     }
 
     addEvent() {
@@ -343,12 +356,12 @@ https://github.com/${this.githubUsername}/${this.repositoryName}/issues/new?temp
         // 添加到頁面
         document.body.appendChild(messageDiv);
         
-        // 自動移除
+        // 自動移除（縮短為 3 秒）
         setTimeout(() => {
             if (messageDiv.parentNode) {
                 messageDiv.remove();
             }
-        }, 10000);
+        }, 3000);
         
         console.log(`顯示訊息 [${type}]:`, message);
     }

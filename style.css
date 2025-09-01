@@ -64,10 +64,9 @@ header h1 {
     min-width: 150px;
 }
 
-.refresh-button {
+.refresh-button, .today-button {
     position: absolute;
     top: 20px;
-    right: 20px;
     background: rgba(255,255,255,0.2);
     border: none;
     color: white;
@@ -76,6 +75,19 @@ header h1 {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 1em;
+}
+
+.refresh-button {
+    right: 20px;
+}
+
+.today-button {
+    right: 140px;
+}
+
+.refresh-button:hover, .today-button:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
 }
 
 .refresh-button:hover {
