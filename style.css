@@ -286,7 +286,7 @@ header h1 {
 .message {
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 20px; /* 移到左上角，完全不擋住按鈕 */
     padding: 15px 20px;
     border-radius: 8px;
     color: white;
