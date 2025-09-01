@@ -10,6 +10,7 @@ class Calendar {
     init() {
         this.renderCalendar();
         this.bindEvents();
+        this.addRefreshButton(); // 立即添加按鈕
         this.loadEventsFromGitHub();
         this.setCurrentDate();
     }
@@ -224,8 +225,7 @@ class Calendar {
         // 設定今天的日期
         document.getElementById('eventDate').value = this.formatDate(new Date());
         
-        // 新增重新整理按鈕事件
-        this.addRefreshButton();
+        // 按鈕已在 init() 中添加，這裡不需要重複調用
     }
 
     addRefreshButton() {
